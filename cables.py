@@ -3,13 +3,18 @@ from tkinter import ttk, messagebox
 from PIL import ImageTk, Image
 import math
 
+
 class CalculadoraCables:
     def __init__(self, master):
         self.master = master
-        self.master.title("Calculadora de cables para instalaciones eléctricas")
+        self.master.title("Calculadora de Cables para Instalaciones Eléctricas")
+        self.master.geometry("700x500")
         self.master.configure(bg="mistyrose")
 
-        # Variables para opciones y entradas
+        # Crear barra de navegación
+        self.barra_nav = self.crear_barra_navegacion()
+
+         # Variables para opciones y entradas
         self.variable_opcion = tk.StringVar(value="Elige una opción")
         self.variable_sistema = tk.StringVar(value="Monofásico")
         self.variable_aislamiento = tk.StringVar(value="PVC")
@@ -27,20 +32,68 @@ class CalculadoraCables:
         # Resultados dinámicos
         self.label_resultado = tk.Label(master, text="", bg='#ffe4e1')
 
-        # Crear interfaz
-        self.crear_interfaz()
+        # Pantalla inicial
+        self.crear_home()
 
-    def crear_interfaz(self):
-        # Menú de opciones
-        option_menu = tk.OptionMenu(
-            self.master,
-            self.variable_opcion,
-            "Calcular caída de tensión y capacidad de conducción",
-            "Dimensionar sección del cable",
-            command=self.mostrar_campos
+    def crear_barra_navegacion(self):
+        """Crea una barra de navegación horizontal."""
+        barra_nav = tk.Frame(self.master, bg="#f6adad", pady=5)
+        barra_nav.grid(row=0, column=0, columnspan=3, sticky="ew")
+
+        # Botones de la barra
+        btn_home = tk.Button(
+            barra_nav, text="Home", command=self.crear_home,
+            bg="#ffe4e1", font=("Arial", 10, "bold"), width=15
         )
-        option_menu.configure(bg='#f6adad', activebackground='#f6adad')
-        option_menu.grid(row=0, column=0, columnspan=2, padx=10, pady=10)
+        btn_home.pack(side="left", padx=5)
+
+        btn_calcular_caida = tk.Button(
+            barra_nav, text="Calcular Caída de Tensión", command=self.mostrar_calcular_caida,
+            bg="#ffe4e1", font=("Arial", 10, "bold"), width=25
+        )
+        btn_calcular_caida.pack(side="left", padx=5)
+
+        btn_dimensionar = tk.Button(
+            barra_nav, text="Dimensionar Sección del Cable", command=self.mostrar_dimensionar_seccion,
+            bg="#ffe4e1", font=("Arial", 10, "bold"), width=25
+        )
+        btn_dimensionar.pack(side="left", padx=5)
+
+        return barra_nav
+
+    def crear_home(self):
+        """Crea la pantalla principal (Home)."""
+        self.limpiar_campos(persist=[self.barra_nav, self.label_resultado])
+        self.barra_nav.grid_remove()
+        # Título principal
+        tk.Label(
+            self.master,
+            text="Calculadora de Cables",
+            font=("Arial", 18, "bold"),
+            bg="mistyrose"
+        ).grid(row=1, column=0, columnspan=3, pady=20)
+
+        # Botones
+        tk.Button(
+            self.master,
+            text="Calcular Caída de Tensión",
+            command=self.mostrar_calcular_caida,
+            font=("Arial", 12),
+            bg="#f6adad",
+            activebackground="#f6adad",
+            width=25
+        ).grid(row=2, column=0, pady=10, padx=10, columnspan=3)
+
+        tk.Button(
+            self.master,
+            text="Dimensionar Sección del Cable",
+            command=self.mostrar_dimensionar_seccion,
+            font=("Arial", 12),
+            bg="#f6adad",
+            activebackground="#f6adad",
+            width=25
+        ).grid(row=3, column=0, pady=10, padx=10, columnspan=3)
+
 
         # Crear campos y etiquetas comunes
         self.label_longitud = tk.Label(self.master, text="Longitud del cable (m):", bg='#ffe4e1')
@@ -68,88 +121,100 @@ class CalculadoraCables:
         # Espacio para resultados
         self.label_resultado.grid(row=10, column=0, columnspan=2, padx=10, pady=10)
 
-    def mostrar_campos(self, opcion):
-        # Limpia los campos actuales
-        self.limpiar_campos()
-
-        if opcion == "Dimensionar sección del cable":
-            self.mostrar_dimensionar_seccion()
-
-        elif opcion == "Calcular caída de tensión y capacidad de conducción":
-            self.mostrar_calcular_caida()
-
-    def limpiar_campos(self):
-        for widget in self.master.grid_slaves():
-            if isinstance(widget, tk.Entry) or isinstance(widget, tk.OptionMenu) or isinstance(widget, tk.Label):
-                widget.grid_remove()
-        self.label_resultado.config(text="")
 
     def mostrar_dimensionar_seccion(self):
-        # Limpiar cualquier widget previamente configurado
-        self.limpiar_campos()
+        """Interfaz para dimensionar la sección del cable."""
+        self.limpiar_campos(persist=[self.barra_nav, self.label_resultado])
+        # Mostrar barra de navegación
+        self.barra_nav.grid()
+        # Título
+        tk.Label(
+            self.master,
+            text="Dimensionar Sección del Cable",
+            font=("Arial", 14, "bold"),
+            bg="mistyrose"
+        ).grid(row=1, column=0, columnspan=3, pady=20)
 
         # Mostrar todos los widgets necesarios
-        self.label_longitud.grid(row=1, column=0, padx=10, pady=5)
-        self.entry_longitud.grid(row=1, column=1, padx=10, pady=5)
+        self.label_longitud.grid(row=2, column=0, padx=10, pady=5)
+        self.entry_longitud.grid(row=2, column=1, padx=10, pady=5)
 
         self.label_caida_tension.grid(row=3, column=0, padx=10, pady=5)
         self.entry_caida_tension.grid(row=3, column=1, padx=10, pady=5)
 
-        self.label_demanda_potencia.grid(row=2, column=0, padx=10, pady=5)
-        self.entry_demanda_potencia.grid(row=2, column=1, padx=10, pady=5)
+        self.label_demanda_potencia.grid(row=4, column=0, padx=10, pady=5)
+        self.entry_demanda_potencia.grid(row=4, column=1, padx=10, pady=5)
 
-        self.label_temperatura.grid(row=4, column=0, padx=10, pady=5)
-        self.entry_temperatura.grid(row=4, column=1, padx=10, pady=5)
+        self.label_temperatura.grid(row=5, column=0, padx=10, pady=5)
+        self.entry_temperatura.grid(row=5, column=1, padx=10, pady=5)
 
-        self.label_aislamiento.grid(row=5, column=0, padx=10, pady=5)
-        self.option_aislamiento.grid(row=5, column=1, padx=10, pady=5)
+        self.label_aislamiento.grid(row=6, column=0, padx=10, pady=5)
+        self.option_aislamiento.grid(row=6, column=1, padx=10, pady=5)
 
-        self.label_Forma_montar.grid(row=6, column=0, padx=10, pady=5)
-        self.option_Forma_montar.grid(row=6, column=1, padx=10, pady=5)
+        self.label_Forma_montar.grid(row=7, column=0, padx=10, pady=5)
+        self.option_Forma_montar.grid(row=7, column=1, padx=10, pady=5)
 
-        self.label_sistema.grid(row=7, column=0, padx=10, pady=5)
-        self.option_sistema.grid(row=7, column=1, padx=10, pady=5)
+        self.label_sistema.grid(row=8, column=0, padx=10, pady=5)
+        self.option_sistema.grid(row=8, column=1, padx=10, pady=5)
 
         self.button_calcular.config(command=self.dimensionar_seccion_cable)
-        self.button_calcular.grid(row=8, column=0, columnspan=2, padx=10, pady=10)
-
+        self.button_calcular.grid(row=9, column=0, columnspan=2, padx=10, pady=10)
 
     def mostrar_calcular_caida(self):
-        # Limpiar cualquier widget previamente configurado
-        self.limpiar_campos()
+        """Interfaz para calcular caída de tensión."""
+        self.limpiar_campos(persist=[self.barra_nav, self.label_resultado])
+        # Mostrar barra de navegación
+        self.barra_nav.grid()
+        # Título
+        tk.Label(
+            self.master,
+            text="Calcular Caída de Tensión",
+            font=("Arial", 14, "bold"),
+            bg="mistyrose"
+        ).grid(row=1, column=0, columnspan=3, pady=20)
 
         # Mostrar widgets necesarios
-        self.label_longitud.grid(row=1, column=0, padx=10, pady=5)
-        self.entry_longitud.grid(row=1, column=1, padx=10, pady=5)
+        self.label_longitud.grid(row=2, column=0, padx=10, pady=5)
+        self.entry_longitud.grid(row=2, column=1, padx=10, pady=5)
 
-        self.label_longitud1.grid(row=2, column=0, padx=10, pady=5)
-        self.entry_longitud1.grid(row=2, column=1, padx=10, pady=5)
+        self.label_longitud1.grid(row=3, column=0, padx=10, pady=5)
+        self.entry_longitud1.grid(row=3, column=1, padx=10, pady=5)
 
-        self.label_caida_tension.grid(row=3, column=0, padx=10, pady=5)
-        self.entry_caida_tension.grid(row=3, column=1, padx=10, pady=5)
+        self.label_caida_tension.grid(row=4, column=0, padx=10, pady=5)
+        self.entry_caida_tension.grid(row=4, column=1, padx=10, pady=5)
 
-        self.label_temperatura.grid(row=4, column=0, padx=10, pady=5)
-        self.entry_temperatura.grid(row=4, column=1, padx=10, pady=5)
+        self.label_temperatura.grid(row=5, column=0, padx=10, pady=5)
+        self.entry_temperatura.grid(row=5, column=1, padx=10, pady=5)
 
-        self.label_carga.grid(row=5, column=0, padx=10, pady=5)
-        self.entry_carga.grid(row=5, column=1, padx=10, pady=5)
+        self.label_carga.grid(row=6, column=0, padx=10, pady=5)
+        self.entry_carga.grid(row=6, column=1, padx=10, pady=5)
 
-        self.label_seccion_cable.grid(row=6, column=0, padx=10, pady=5)
-        self.entry_seccion_cable.grid(row=6, column=1, padx=10, pady=5)
+        self.label_seccion_cable.grid(row=7, column=0, padx=10, pady=5)
+        self.entry_seccion_cable.grid(row=7, column=1, padx=10, pady=5)
 
-        self.label_aislamiento.grid(row=7, column=0, padx=10, pady=5)
-        self.option_aislamiento.grid(row=7, column=1, padx=10, pady=5)
+        self.label_aislamiento.grid(row=8, column=0, padx=10, pady=5)
+        self.option_aislamiento.grid(row=8, column=1, padx=10, pady=5)
 
-        self.label_Forma_montar.grid(row=8, column=0, padx=10, pady=5)
-        self.option_Forma_montar.grid(row=8, column=1, padx=10, pady=5)
+        self.label_Forma_montar.grid(row=9, column=0, padx=10, pady=5)
+        self.option_Forma_montar.grid(row=9, column=1, padx=10, pady=5)
 
-        self.label_sistema.grid(row=9, column=0, padx=10, pady=5)
-        self.option_sistema.grid(row=9, column=1, padx=10, pady=5)
+        self.label_sistema.grid(row=10, column=0, padx=10, pady=5)
+        self.option_sistema.grid(row=10, column=1, padx=10, pady=5)
 
         # Configurar el botón para usar el cálculo correcto
         self.button_calcular.config(command=self.calcular_caida_tension)
-        self.button_calcular.grid(row=10, column=0, columnspan=2, padx=10, pady=10)
+        self.button_calcular.grid(row=11, column=0, columnspan=2, padx=10, pady=10)
 
+
+    def limpiar_campos(self, persist=None):
+        """Limpia todos los widgets excepto los especificados en persist."""
+        # Reinicia el resultado
+        self.label_resultado.config(text="")
+
+        # Oculta todos los widgets en la ventana
+        for widget in self.master.grid_slaves():
+            if widget != self.barra_nav:
+                widget.grid_remove()
 
     def validar_entrada(self, entradas, nombres_campos):
         for valor, nombre in zip(entradas, nombres_campos):
@@ -163,6 +228,14 @@ class CalculadoraCables:
                 return False
         return True
     
+    def limpiar_resultados(self):
+        """
+        Limpia las etiquetas de resultados para evitar conflictos en el diseño dinámico.
+        """
+        for label in getattr(self, "result_labels", []):
+            label.grid_remove()
+        self.result_labels = []
+
     def mostrar_resultados(self, resultados, errores=None):
         """
         Actualiza las etiquetas dinámicamente con los resultados o errores.
